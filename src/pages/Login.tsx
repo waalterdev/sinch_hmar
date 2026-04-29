@@ -1,11 +1,26 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import backgroundImage from '../assets/background-image.jpg';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
+import { useUser } from '../contexts/UserContext';
 
 function Login() {
     const [cpf, setCpf] = useState<string>('')
     const [password, setPassword] = useState<string>('')
     const [showPassword, setShowPassword] = useState<boolean>(false);
+
+    const { login, loading, hasLoggedUser } = useUser();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+
+        if (!loading) {
+            const loggedUser = hasLoggedUser();
+
+            if (loggedUser) {
+                navigate('/', { replace: true })
+            }
+        }
+    }, [loading])
 
     const formatCPF = (val: string) => {
         return val
@@ -16,10 +31,27 @@ function Login() {
             .replace(/(-\d{2})\d+?$/, '$1'); // Impede que digite mais de 11 números
     }
 
-    const handleCpfChange = (e : React.ChangeEvent<HTMLInputElement>) => {
+    const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const inputValue = e.target.value;
         setCpf(formatCPF(inputValue))
     }
+
+    const handleLogin = (e: React.SubmitEvent<HTMLFormElement>) => {
+
+        e.preventDefault();
+
+        const logged = login(cpf, password);
+
+        if (!logged) {
+            alert('Erro ao logar.')
+            return;
+        }
+
+        setCpf('');
+        setPassword('');
+
+        navigate('/', { replace: true });
+    };
 
     return (
         <div
@@ -41,7 +73,7 @@ function Login() {
                     </p>
                 </div>
 
-                <form className="space-y-4">
+                <form className="space-y-4" onSubmit={handleLogin}>
                     <div className="space-y-1">
                         <label className="block text-xs font-bold text-white uppercase ml-1">CPF</label>
                         <input

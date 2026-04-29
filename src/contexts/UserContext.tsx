@@ -14,6 +14,7 @@ interface UserContextType {
     logout: () => void;
     register: (userData: User) => void;
     loading: boolean;
+    hasLoggedUser: () => boolean
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -26,7 +27,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     const currentUserKey = 'Session@:User';
     const usersKey = 'SinCH@:Users';
 
-    // 1. Carregamento inicial
     useEffect(() => {
         const savedCurrentUser = localStorage.getItem(currentUserKey);
         const savedUsers = localStorage.getItem(usersKey);
@@ -42,7 +42,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         setIsLoading(false);
     }, []);
 
-    // 2. Login: Busca na lista de usuários
     const login = (cpf: string, pass: string): boolean => {
         const foundUser = users.find(u => u.cpf === cpf && u.password === pass);
 
@@ -56,20 +55,19 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         return false;
     };
 
-    // 3. Register: Adiciona à lista e persiste
     const register = (userData: User) => {
         const updatedUsers = [...users, { ...userData, isLogged: false }];
         setUsers(updatedUsers);
 
-        // Atualiza o "banco de dados" local
         localStorage.setItem(usersKey, JSON.stringify(updatedUsers));
     };
 
-    // 4. Logout: Limpa apenas a sessão atual
     const logout = () => {
         setCurrentUser(null);
         localStorage.removeItem(currentUserKey);
     };
+
+    const hasLoggedUser = () => !!currentUser;
 
     return (
         <UserContext.Provider value={{
@@ -77,7 +75,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
             login,
             logout,
             register,
-            loading: isLoading
+            loading: isLoading,
+            hasLoggedUser
         }}>
             {children}
         </UserContext.Provider>

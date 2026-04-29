@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import backgroundImage from '../assets/background-image.jpg';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { useUser, type User } from '../contexts/UserContext';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -11,7 +11,19 @@ function Cadastro() {
 
     const [showPassword, setShowPassword] = useState<boolean>(false);
 
-    const { register } = useUser();
+    const { register, hasLoggedUser, loading } = useUser();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+
+        if (!loading) {
+            const loggedUser = hasLoggedUser();
+
+            if (loggedUser) {
+                navigate('/', { replace: true })
+            }
+        }  
+    }, [loading])
 
     const formatCPF = (val: string) => {
         return val
@@ -27,11 +39,11 @@ function Cadastro() {
         setCpf(formatCPF(inputValue));
     };
 
-    const handleRegister = (e : React.SubmitEvent<HTMLFormElement>) => {
+    const handleRegister = (e: React.SubmitEvent<HTMLFormElement>) => {
 
         e.preventDefault();
 
-        const user : User = {
+        const user: User = {
             id: uuidv4(),
             cpf,
             password,
