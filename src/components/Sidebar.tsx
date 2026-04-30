@@ -1,10 +1,14 @@
+import { useUser } from "../contexts/UserContext"
+
 function Sidebar() {
+
+    const { logout } = useUser();
+
     return (
         <aside className="w-64 bg-white shadow-md flex flex-col border-r border-gray-200">
             {/* Espaço para o Logo/Cabeçalho da Sidebar */}
             <div className="p-6 border-b border-gray-100 flex justify-center items-center flex-col gap-2">
                 <span className="font-bold text-black text-sm text-center">Sistema Informatizado de Chamados do HMAR</span>
-
 
                 <div className="bg-white/90 p-3 rounded-full mb-4 shadow-sm">
                     <img
@@ -38,7 +42,8 @@ function Sidebar() {
                     <span className="mr-3">⚙️</span>
                     Minha conta
                 </button>
-                <button className="w-full flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg transition-colors font-medium cursor-pointer group">
+                <button className="w-full flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg transition-colors font-medium cursor-pointer group"
+                onClick={logout}>
                     <span className="mr-3">🚪</span>
                     Sair
                 </button>

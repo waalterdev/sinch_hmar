@@ -56,6 +56,8 @@ function Cadastro() {
         setCpf('');
         setPassword('');
         setFullname('');
+
+        navigate('/login', { replace: true });
     };
 
     return (

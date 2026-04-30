@@ -11,7 +11,7 @@ export interface User {
 interface UserContextType {
     user: User | null;
     login: (cpf: string, pass: string) => boolean;
-    logout: () => void;
+    logout: () => boolean;
     register: (userData: User) => void;
     loading: boolean;
     hasLoggedUser: () => boolean
@@ -65,6 +65,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     const logout = () => {
         setCurrentUser(null);
         localStorage.removeItem(currentUserKey);
+
+        return !currentUser;
     };
 
     const hasLoggedUser = () => !!currentUser;

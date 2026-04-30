@@ -7,7 +7,7 @@ import ProtectedPage from "./pages/ProtectedPage";
 function App() {
   return (
     <Routes>
-      <Route 
+      <Route
         path="/login"
         element={<Login />}
       />
