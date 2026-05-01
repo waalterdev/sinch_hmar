@@ -8,15 +8,13 @@ function Login() {
     const [password, setPassword] = useState<string>('')
     const [showPassword, setShowPassword] = useState<boolean>(false);
 
-    const { login, loading, hasLoggedUser } = useUser();
+    const { login, loading, user } = useUser();
     const navigate = useNavigate();
 
     useEffect(() => {
 
         if (!loading) {
-            const loggedUser = hasLoggedUser();
-
-            if (loggedUser) {
+            if (user) {
                 navigate('/', { replace: true })
             }
         }

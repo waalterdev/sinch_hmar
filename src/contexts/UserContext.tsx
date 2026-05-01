@@ -5,42 +5,50 @@ export interface User {
     fullname: string;
     cpf: string;
     password: string;
+    level?: 0 | 1;
     isLogged: boolean;
 }
 
 interface UserContextType {
     user: User | null;
     login: (cpf: string, pass: string) => boolean;
-    logout: () => boolean;
+    logout: () => void;
     register: (userData: User) => void;
     loading: boolean;
-    hasLoggedUser: () => boolean
 }
+
+const adminDefault: User = {
+    id: "265e2beb-254a-4454-80fb-e140ee99147a",
+    fullname: "Admin",
+    cpf: "111.111.111-11",
+    password: "123",
+    level: 1,
+    isLogged: false
+};
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
-    const [users, setUsers] = useState<User[]>([]);
-    const [currentUser, setCurrentUser] = useState<User | null>(null);
-    const [isLoading, setIsLoading] = useState<boolean>(true);
-
-    const currentUserKey = 'Session@:User';
     const usersKey = 'SinCH@:Users';
+    const sessionKey = 'Session@:User';
 
+    const [users, setUsers] = useState<User[]>(() => {
+        const saved = localStorage.getItem(usersKey);
+        
+        return saved ? JSON.parse(saved) : [adminDefault];
+    });
+
+    const [currentUser, setCurrentUser] = useState<User | null>(() => {
+        const saved = localStorage.getItem(sessionKey);
+        return saved ? JSON.parse(saved) : null;
+    });
+
+    const [isLoading, setIsLoading] = useState(false);
+
+    // 2. Sincronização Automática com LocalStorage
     useEffect(() => {
-        const savedCurrentUser = localStorage.getItem(currentUserKey);
-        const savedUsers = localStorage.getItem(usersKey);
-
-        if (savedCurrentUser) {
-            setCurrentUser(JSON.parse(savedCurrentUser));
-        }
-
-        if (savedUsers) {
-            setUsers(JSON.parse(savedUsers));
-        }
-
-        setIsLoading(false);
-    }, []);
+        localStorage.setItem(usersKey, JSON.stringify(users));
+    }, [users]);
 
     const login = (cpf: string, pass: string): boolean => {
         const foundUser = users.find(u => u.cpf === cpf && u.password === pass);
@@ -48,28 +56,21 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         if (foundUser) {
             const loggedUser = { ...foundUser, isLogged: true };
             setCurrentUser(loggedUser);
-            localStorage.setItem(currentUserKey, JSON.stringify(loggedUser));
+            localStorage.setItem(sessionKey, JSON.stringify(loggedUser));
             return true;
         }
-
         return false;
     };
 
     const register = (userData: User) => {
-        const updatedUsers = [...users, { ...userData, isLogged: false }];
-        setUsers(updatedUsers);
-
-        localStorage.setItem(usersKey, JSON.stringify(updatedUsers));
+        const newUser = { ...userData, level: userData.level ?? 0, isLogged: false };
+        setUsers(prev => [...prev, newUser]);
     };
 
     const logout = () => {
         setCurrentUser(null);
-        localStorage.removeItem(currentUserKey);
-
-        return !currentUser;
+        localStorage.removeItem(sessionKey);
     };
-
-    const hasLoggedUser = () => !!currentUser;
 
     return (
         <UserContext.Provider value={{
@@ -78,7 +79,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
             logout,
             register,
             loading: isLoading,
-            hasLoggedUser
         }}>
             {children}
         </UserContext.Provider>
@@ -87,8 +87,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
 export const useUser = () => {
     const context = useContext(UserContext);
-    if (context === undefined) {
-        throw new Error("useUser deve ser usado dentro de um UserProvider");
-    }
+    if (!context) throw new Error("useUser deve ser usado dentro de um UserProvider");
     return context;
 };

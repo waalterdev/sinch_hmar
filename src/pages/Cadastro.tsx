@@ -11,15 +11,13 @@ function Cadastro() {
 
     const [showPassword, setShowPassword] = useState<boolean>(false);
 
-    const { register, hasLoggedUser, loading } = useUser();
+    const { register, user, loading } = useUser();
     const navigate = useNavigate();
 
     useEffect(() => {
 
         if (!loading) {
-            const loggedUser = hasLoggedUser();
-
-            if (loggedUser) {
+            if (user) {
                 navigate('/', { replace: true })
             }
         }  

@@ -1,60 +1,71 @@
-import { useUser } from "../contexts/UserContext"
+import { useUser } from "../contexts/UserContext";
 
 function Sidebar() {
+  const { user, logout } = useUser();
 
-    const { logout } = useUser();
+  // 1. Definição dos itens de navegação
+  const navItems = [
+    { label: "Gerenciar chamados", icon: "⚙️", adminOnly: true },
+    { label: "Meus Chamados", icon: "📋" },
+    { label: "Criar Chamados", icon: "➕" },
+    { label: "Minha conta", icon: "⚙️" },
+  ];
 
-    return (
-        <aside className="w-64 bg-white shadow-md flex flex-col border-r border-gray-200">
-            {/* Espaço para o Logo/Cabeçalho da Sidebar */}
-            <div className="p-6 border-b border-gray-100 flex justify-center items-center flex-col gap-2">
-                <span className="font-bold text-black text-sm text-center">Sistema Informatizado de Chamados do HMAR</span>
+  return (
+    <aside className="w-64 bg-white shadow-md flex flex-col border-r border-gray-200">
+      {/* Cabeçalho */}
+      <div className="p-6 border-b border-gray-100 flex flex-col items-center gap-4 text-center">
+        <span className="font-bold text-black text-xs leading-tight">
+          Sistema Informatizado de Chamados do HMAR
+        </span>
+        <div className="bg-white p-3 rounded-full shadow-sm border border-gray-50">
+          <img
+            src="https://sandra.hmar.eb.mil.br/imagens/organizacoes/60210.png"
+            alt="HMAR"
+            className="w-16 h-16 object-contain"
+          />
+        </div>
+      </div>
 
-                <div className="bg-white/90 p-3 rounded-full mb-4 shadow-sm">
-                    <img
-                        src="https://sandra.hmar.eb.mil.br/imagens/organizacoes/60210.png"
-                        alt="HMAR"
-                        className="w-16 h-16 object-contain"
-                    />
-                </div>
-            </div>
+      {/* Perfil Simplificado */}
+      <div className="w-full p-4 bg-blue-50 flex items-center gap-3">
+        <div className="bg-white p-2 rounded-full shadow-sm text-sm">👤</div>
+        <span className="text-sm font-semibold truncate">{user?.fullname || "Usuário"}</span>
+      </div>
 
-            <div className="w-full p-4 bg-blue-50 flex gap-4 justify-center items-center">
-                <div className="bg-white p-2 rounded-full shadow-sm">
-                    <span>👤</span>
-                </div>
-                <span className="text-left text-sm font-semibold">Sd EV Sherman</span>
-            </div>
+      {/* Links de Navegação Mapeados */}
+      <nav className="flex-1 p-4 space-y-1">
+        {navItems.map((item) => {
+          // Só renderiza se não for adminOnly OU se o usuário for nível 1
+          if (item.adminOnly && user?.level !== 1) return null;
 
-            {/* Links de Navegação */}
-            <nav className="flex-1 p-4 space-y-2">
-                <button className="w-full flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg transition-colors font-medium cursor-pointer group">
-                    <span className="mr-3">📋</span>
-                    Meus Chamados
-                </button>
+          return (
+            <button
+              key={item.label}
+              className="w-full flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg transition-colors font-medium text-sm group cursor-pointer"
+            >
+              <span className="mr-3 text-lg">{item.icon}</span>
+              {item.label}
+            </button>
+          );
+        })}
 
-                <button className="w-full flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg transition-colors font-medium cursor-pointer group">
-                    <span className="mr-3">➕</span>
-                    Criar Chamados
-                </button>
+        {/* Botão de Sair separado por ser uma ação diferente */}
+        <div className="w-full h-px bg-black/30 my-4" />
+        <button
+          onClick={logout}
+          className="w-full flex items-center p-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors font-medium text-sm mt-4 cursor-pointer"
+        >
+          <span className="mr-3 text-lg">🚪</span>
+          Sair
+        </button>
+      </nav>
 
-                <button className="w-full flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg transition-colors font-medium cursor-pointer group">
-                    <span className="mr-3">⚙️</span>
-                    Minha conta
-                </button>
-                <button className="w-full flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg transition-colors font-medium cursor-pointer group"
-                onClick={logout}>
-                    <span className="mr-3">🚪</span>
-                    Sair
-                </button>
-            </nav>
-
-            {/* Rodapé da Sidebar (Opcional) */}
-            <div className="p-4 border-t border-gray-100 text-[10px] text-gray-400 text-center uppercase tracking-widest">
-                HMAR - STI
-            </div>
-        </aside>
-    )
+      <div className="p-4 border-t border-gray-100 text-[10px] text-gray-400 text-center tracking-widest uppercase">
+        HMAR - STI
+      </div>
+    </aside>
+  );
 }
 
-export default Sidebar
+export default Sidebar;
