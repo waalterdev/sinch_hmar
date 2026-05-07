@@ -1,12 +1,13 @@
 import { createContext, useEffect, useState, useContext, type ReactNode } from "react";
 
+export type UserRoles = 'default' | 'admin'
+
 export interface User {
     id: string;
     fullname: string;
     cpf: string;
     password: string;
-    level?: 0 | 1;
-    isLogged: boolean;
+    role: UserRoles;
 }
 
 interface UserContextType {
@@ -17,25 +18,18 @@ interface UserContextType {
     loading: boolean;
 }
 
-const adminDefault: User = {
-    id: "265e2beb-254a-4454-80fb-e140ee99147a",
-    fullname: "Admin",
-    cpf: "111.111.111-11",
-    password: "123",
-    level: 1,
-    isLogged: false
-};
-
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
+    // Chaves dos Banco de Dados alocados no LocalStorage
     const usersKey = 'SinCH@:Users';
     const sessionKey = 'Session@:User';
 
+    // Inicialização do banco
     const [users, setUsers] = useState<User[]>(() => {
         const saved = localStorage.getItem(usersKey);
         
-        return saved ? JSON.parse(saved) : [adminDefault];
+        return saved ? JSON.parse(saved) : [];
     });
 
     const [currentUser, setCurrentUser] = useState<User | null>(() => {
@@ -45,7 +39,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
     const [isLoading, setIsLoading] = useState(false);
 
-    // 2. Sincronização Automática com LocalStorage
+    // Sincronização Automática com LocalStorage
     useEffect(() => {
         localStorage.setItem(usersKey, JSON.stringify(users));
     }, [users]);
@@ -59,11 +53,12 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
             localStorage.setItem(sessionKey, JSON.stringify(loggedUser));
             return true;
         }
+
         return false;
     };
 
     const register = (userData: User) => {
-        const newUser = { ...userData, level: userData.level ?? 0, isLogged: false };
+        const newUser = { ...userData, level: userData.role ?? 'default' };
         setUsers(prev => [...prev, newUser]);
     };
 

@@ -6,15 +6,13 @@ interface Props {
 }
 
 function ProtectedPage({ children }: Props) {
-    const { hasLoggedUser, loading } = useUser();
-
-    const isAllowed = hasLoggedUser();
+    const { user, loading } = useUser();
 
     if (loading) {
         return <h1>Carregando...</h1>; 
     }
 
-    if (!isAllowed) {
+    if (!user) {
         return <Navigate to="/login" replace />;
     }
 

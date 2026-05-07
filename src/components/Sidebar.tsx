@@ -1,13 +1,27 @@
+import { useState } from "react";
 import { useUser } from "../contexts/UserContext";
+import NewCallModal from "./NewCallModal";
 
 function Sidebar() {
   const { user, logout } = useUser();
 
-  // 1. Definição dos itens de navegação
+  const [openNewCallModal, setOpenNewCallModal] = useState<boolean>(false);
+
+  const handleOpenModal = () => setOpenNewCallModal(true);
+  const handleCloseModal = () => setOpenNewCallModal(false);
+
+  const handleSaveCall = (formData: any) => {
+    if (!user) return;
+
+    console.log(formData)
+
+    handleCloseModal();
+  };
+
   const navItems = [
     { label: "Gerenciar chamados", icon: "⚙️", adminOnly: true },
     { label: "Meus Chamados", icon: "📋" },
-    { label: "Criar Chamados", icon: "➕" },
+    { label: "Criar Chamado", icon: "➕", onClick: handleOpenModal },
     { label: "Minha conta", icon: "⚙️" },
   ];
 
@@ -27,7 +41,7 @@ function Sidebar() {
         </div>
       </div>
 
-      {/* Perfil Simplificado */}
+      {/* Perfil Simplificado EDITAR DEPOIS */}
       <div className="w-full p-4 bg-blue-50 flex items-center gap-3">
         <div className="bg-white p-2 rounded-full shadow-sm text-sm">👤</div>
         <span className="text-sm font-semibold truncate">{user?.fullname || "Usuário"}</span>
@@ -37,12 +51,13 @@ function Sidebar() {
       <nav className="flex-1 p-4 space-y-1">
         {navItems.map((item) => {
           // Só renderiza se não for adminOnly OU se o usuário for nível 1
-          if (item.adminOnly && user?.level !== 1) return null;
+          if (item.adminOnly && user?.role !== 'admin') return null;
 
           return (
             <button
               key={item.label}
               className="w-full flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg transition-colors font-medium text-sm group cursor-pointer"
+              onClick={item.onClick}
             >
               <span className="mr-3 text-lg">{item.icon}</span>
               {item.label}
@@ -50,7 +65,6 @@ function Sidebar() {
           );
         })}
 
-        {/* Botão de Sair separado por ser uma ação diferente */}
         <div className="w-full h-px bg-black/30 my-4" />
         <button
           onClick={logout}
@@ -60,6 +74,12 @@ function Sidebar() {
           Sair
         </button>
       </nav>
+
+      <NewCallModal
+        openStatus={openNewCallModal}
+        onClose={handleCloseModal}
+        onSubmit={handleSaveCall}
+      />
 
       <div className="p-4 border-t border-gray-100 text-[10px] text-gray-400 text-center tracking-widest uppercase">
         HMAR - STI
