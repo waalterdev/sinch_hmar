@@ -1,13 +1,18 @@
 import Modal from '@mui/material/Modal';
 import { useState } from 'react';
+import { type NewCallType } from '../contexts/CallsContext';
+import { useUser } from '../contexts/UserContext';
 
 interface Props {
   openStatus: boolean;
   onClose: () => void;
-  onSubmit: (data: any) => void; // Depois você pode tipar com o 'NewCall' que criamos
+  onSubmit: (data: NewCallType) => void;
 }
 
 function NewCallModal({ openStatus, onClose, onSubmit }: Props) {
+
+  const { user } = useUser();
+
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [sector, setSector] = useState('');
@@ -15,7 +20,15 @@ function NewCallModal({ openStatus, onClose, onSubmit }: Props) {
 
   const handleSubmit = (e: React.SubmitEvent) => {
     e.preventDefault();
-    onSubmit({ title, description, sector, priority });
+
+    const formData: NewCallType = {
+      title,
+      description,
+      callerSector: sector,
+      
+    }
+
+    onSubmit();
     onClose();
 
     setTitle('');
